@@ -31,8 +31,11 @@ export interface GalaxyUIState {
 
   /** Whether the accessible 2D list-view fallback is active instead of the WebGL 3D scene */
   isAccessibilityListView: boolean;
+  isListView: boolean;
   setAccessibilityListView: (active: boolean) => void;
+  setIsListView: (active: boolean) => void;
   toggleAccessibilityListView: () => void;
+  toggleListView: () => void;
 
   /** Resets interactive UI selection back to scene defaults */
   resetUIState: () => void;
@@ -46,9 +49,23 @@ export const useGalaxyStore = create<GalaxyUIState>((set) => ({
   setCameraMode: (mode) => set({ cameraMode: mode }),
 
   isAccessibilityListView: false,
-  setAccessibilityListView: (active) => set({ isAccessibilityListView: active }),
+  get isListView() {
+    return this.isAccessibilityListView;
+  },
+  setAccessibilityListView: (active) =>
+    set({ isAccessibilityListView: active, isListView: active }),
+  setIsListView: (active) =>
+    set({ isAccessibilityListView: active, isListView: active }),
   toggleAccessibilityListView: () =>
-    set((state) => ({ isAccessibilityListView: !state.isAccessibilityListView })),
+    set((state) => ({
+      isAccessibilityListView: !state.isAccessibilityListView,
+      isListView: !state.isAccessibilityListView,
+    })),
+  toggleListView: () =>
+    set((state) => ({
+      isAccessibilityListView: !state.isAccessibilityListView,
+      isListView: !state.isAccessibilityListView,
+    })),
 
   resetUIState: () =>
     set({

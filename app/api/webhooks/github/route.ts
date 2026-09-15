@@ -2,12 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { z } from 'zod';
 import { checkWebhookRateLimit } from '@/lib/ratelimit';
-import { db } from '@/db';
-import { users } from '@/db/schema';
-import { getUserByUsername } from '@/db/repositories/userRepository';
+import { getUserByUsername, getUserByGithubId } from '@/db/repositories/userRepository';
 import { createProject } from '@/db/repositories/projectRepository';
 import { insertCommit } from '@/db/repositories/commitRepository';
-import { eq } from 'drizzle-orm';
 
 // Route segment configuration
 export const dynamic = 'force-dynamic';
@@ -164,12 +161,7 @@ export async function POST(request: NextRequest) {
   let user = null;
 
   if (data.repository.owner.id) {
-    const [foundById] = await db
-      .select()
-      .from(users)
-      .where(eq(users.githubId, data.repository.owner.id))
-      .limit(1);
-    user = foundById;
+    user = await getUserByGithubId(data.repository.owner.id);
   }
 
   if (!user) {
@@ -177,12 +169,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (!user && data.sender?.id) {
-    const [foundBySender] = await db
-      .select()
-      .from(users)
-      .where(eq(users.githubId, data.sender.id))
-      .limit(1);
-    user = foundBySender;
+    user = await getUserByGithubId(data.sender.id);
   }
 
   if (!user) {

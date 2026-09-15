@@ -34,6 +34,21 @@ export async function createOrUpdateUserFromGitHub(
 }
 
 /**
+ * Fetches a user record by their GitHub numeric ID, returning null if not found.
+ */
+export async function getUserByGithubId(
+  githubId: number
+): Promise<User | null> {
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.githubId, githubId))
+    .limit(1);
+
+  return user ?? null;
+}
+
+/**
  * Fetches a user record by their GitHub username, returning null if not found.
  */
 export async function getUserByUsername(
