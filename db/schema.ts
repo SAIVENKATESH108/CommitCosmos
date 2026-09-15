@@ -169,3 +169,29 @@ export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// Type exports for strong typing across repositories
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Project = typeof projects.$inferSelect;
+export type NewProject = typeof projects.$inferInsert;
+export type Commit = typeof commits.$inferSelect;
+export type NewCommit = typeof commits.$inferInsert;
+export type SkyState = typeof skyState.$inferSelect;
+export type NewSkyState = typeof skyState.$inferInsert;
+export type Streak = typeof streaks.$inferSelect;
+export type NewStreak = typeof streaks.$inferInsert;
+export type Constellation = typeof constellations.$inferSelect;
+export type NewConstellation = typeof constellations.$inferInsert;
+export type Team = typeof teams.$inferSelect;
+export type TeamMember = typeof teamMembers.$inferSelect;
+
+export interface UserStats {
+  userId: string;
+  githubUsername: string;
+  totalCommits: number;
+  totalProjects: number;
+  currentStreak: number;
+  longestStreak: number;
+}
+
