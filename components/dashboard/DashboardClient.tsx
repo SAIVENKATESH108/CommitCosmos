@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { SignOutButton } from '@/components/auth/SignOutButton';
+import { AppNavbar } from '@/components/navigation/AppNavbar';
 import type { UserStats, Project, Constellation, Commit } from '@/db/schema';
 
 interface DashboardClientProps {
@@ -116,7 +117,7 @@ export function DashboardClient({
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#030712] text-slate-100 selection:bg-indigo-500/30 selection:text-indigo-200">
+    <div className="relative min-h-screen bg-black text-slate-100 selection:bg-indigo-500/30 selection:text-indigo-200">
       {/* Ambient Celestial Nebulae Glows */}
       <div
         aria-hidden="true"
@@ -127,66 +128,13 @@ export function DashboardClient({
         <div className="h-[400px] w-[400px] rounded-full bg-purple-600/10 blur-[130px] translate-y-64 -translate-x-48" />
       </div>
 
-      {/* Top Observatory Header */}
-      <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-3.5">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-indigo-500/40 shadow-lg shadow-indigo-500/20 bg-[#030712]">
-              <Image
-                src="/commitcosmos_logo.png"
-                alt="CommitCosmos Logo"
-                width={32}
-                height={32}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                priority
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-extrabold tracking-tight text-white text-base flex items-center gap-2">
-                CommitCosmos
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/60">
-                  Observatory
-                </span>
-              </span>
-            </div>
-          </Link>
-
-          {/* Right User Bar */}
-          <div className="flex items-center gap-3">
-            <Link
-              href={`/u/${user.githubUsername}`}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-semibold text-xs shadow-md shadow-indigo-600/20 transition-all"
-            >
-              <Compass className="w-3.5 h-3.5" />
-              <span>Launch 3D Galaxy</span>
-            </Link>
-
-            <div className="flex items-center gap-2.5 pl-2 border-l border-slate-800">
-              <div className="relative w-8 h-8 rounded-full overflow-hidden border border-slate-700 bg-slate-900">
-                {user.image ? (
-                  <Image
-                    src={user.image}
-                    alt={user.githubUsername}
-                    width={32}
-                    height={32}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center font-bold text-xs text-indigo-300">
-                    {user.githubUsername.slice(0, 2).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <div className="hidden md:flex flex-col text-left">
-                <span className="text-xs font-semibold text-slate-200">@{user.githubUsername}</span>
-                <span className="text-[10px] text-slate-400 font-mono">Cosmonaut Architect</span>
-              </div>
-            </div>
-
-            <SignOutButton />
-          </div>
-        </div>
-      </header>
+      {/* Top Persistent App Shell Navbar */}
+      <AppNavbar
+        currentUser={user}
+        currentStreak={currentStreak}
+        totalCommits={totalCommits}
+        pageBadge="Observatory"
+      />
 
       {/* Main Dashboard Workspace */}
       <main className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 py-8">
@@ -201,7 +149,7 @@ export function DashboardClient({
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
             <div className="flex items-start gap-4">
-              <div className="relative hidden sm:block w-16 h-16 rounded-2xl overflow-hidden border-2 border-indigo-500/40 p-0.5 bg-[#030712] shadow-xl shadow-indigo-500/20 shrink-0">
+              <div className="relative hidden sm:block w-16 h-16 rounded-2xl overflow-hidden border-2 border-indigo-500/40 p-0.5 bg-black shadow-xl shadow-indigo-500/20 shrink-0">
                 {user.image ? (
                   <Image
                     src={user.image}
@@ -215,7 +163,7 @@ export function DashboardClient({
                     {user.githubUsername.slice(0, 2).toUpperCase()}
                   </div>
                 )}
-                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#030712] rounded-full" />
+                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-black rounded-full" />
               </div>
 
               <div>

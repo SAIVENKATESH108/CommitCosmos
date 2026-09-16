@@ -17,6 +17,11 @@ const cspHeader = `
 `.replace(/\s{2,}/g, ' ').trim();
 
 const nextConfig = {
+  experimental: {
+    // Suppress the false-positive `_document` Pages Router lookup that Next.js 14.2.x
+    // triggers when an edge-runtime API route (app/api/og) coexists with static pages.
+    missingSuspenseWithCSRBailout: false,
+  },
   images: {
     remotePatterns: [
       {

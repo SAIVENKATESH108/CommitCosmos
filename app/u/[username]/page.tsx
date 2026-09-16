@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { UserProfileClient } from '@/components/galaxy/UserProfileClient';
 import { getUserStats } from '@/db/repositories/userRepository';
 
+import { auth } from '@/lib/auth';
+
 interface ProfilePageProps {
   params: {
     username: string;
@@ -58,6 +60,12 @@ export async function generateMetadata({
   };
 }
 
-export default function UserProfilePage({ params }: ProfilePageProps) {
-  return <UserProfileClient username={params.username} />;
+export default async function UserProfilePage({ params }: ProfilePageProps) {
+  const session = await auth();
+  return (
+    <UserProfileClient
+      username={params.username}
+      sessionUser={session?.user || null}
+    />
+  );
 }

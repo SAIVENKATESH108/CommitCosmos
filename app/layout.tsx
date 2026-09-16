@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { QueryProvider } from '@/components/providers/QueryProvider';
+import { Toaster } from 'sonner';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -19,7 +20,7 @@ const productionBaseUrl =
   process.env.NEXT_PUBLIC_APP_URL || 'https://commitcosmos.vercel.app';
 
 export const viewport: Viewport = {
-  themeColor: '#030712',
+  themeColor: '#000000',
   colorScheme: 'dark',
   width: 'device-width',
   initialScale: 1,
@@ -99,9 +100,20 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#030712] text-slate-100 antialiased selection:bg-cyan-500/30 selection:text-cyan-200`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-black text-slate-100 antialiased selection:bg-cyan-500/30 selection:text-cyan-200`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          {children}
+          <Toaster
+            theme="dark"
+            position="top-center"
+            toastOptions={{
+              className:
+                '!bg-black/90 !backdrop-blur-xl !border !border-white/15 !text-slate-100 !shadow-2xl !shadow-black/80 !rounded-xl',
+              duration: 4000,
+            }}
+          />
+        </QueryProvider>
       </body>
     </html>
   );

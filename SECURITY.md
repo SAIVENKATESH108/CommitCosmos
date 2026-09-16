@@ -6,12 +6,27 @@ CommitCosmos implements a layered security defense model. This document outlines
 
 ## 1. Custom Application-Level Protections (Built by Us)
 
-### A. Defensive Webhook Pipeline (`/app/api/webhooks/github`)
-- **Rate Limiter First**: The rate limiter runs as the very first line of defense before reading the body, allocating buffers, or executing cryptographic operations. Prevents volumetric compute attacks.
-- **Payload Size Capping**: Inbound payloads are strictly capped at 5 MB (`MAX_PAYLOAD_SIZE`). Over-sized requests receive `413 Payload Too Large` immediately to protect against server memory exhaustion.
-- **HMAC-SHA256 Cryptographic Verification**: Inbound GitHub webhooks require a valid `X-Hub-Signature-256` header signed with the shared webhook secret. Verified using `crypto.timingSafeEqual` over raw UTF-8 request bytes to eliminate timing side-channel attacks.
-- **Strict Zod Schema Validation**: All JSON payloads are validated via Zod schemas before being passed to downstream services. Malformed, untyped, or extra parameters are rejected with `400 Bad Request`.
-- **Database Idempotency**: Natural unique composite constraints on `(project_id, sha)` prevent duplicate star creations even if GitHub redelivers events.
+### A. Multi-Event Defensive Webhook Pipeline (`/app/api/webhooks/github`)
+
+CommitCosmos handles six distinct GitHub webhook event types: `push`, `create`, `delete`, `release`, `pull_request`, and `issues`. Every event is guarded by a single, unbypassable defense-in-depth pipeline:
+
+1. **Rate Limiting First**: The rate limiter (Upstash Redis sliding window with in-memory fallback) runs as the very first line of defense before reading the body, allocating memory buffers, or executing cryptographic operations. Prevents volumetric compute attacks (capped at 10 requests/min per IP).
+2. **Payload Size Capping**: Inbound payloads are strictly capped at 5 MB (`MAX_PAYLOAD_SIZE`). Over-sized requests receive `413 Payload Too Large` immediately to protect against server memory exhaustion.
+3. **Universal HMAC-SHA256 Cryptographic Verification**: Inbound webhooks must supply a valid `X-Hub-Signature-256` header signed with the shared webhook secret. Verification is executed using `crypto.timingSafeEqual` over raw UTF-8 request bytes *before* JSON parsing. **This identical verification applies uniformly to ALL event types — no event type bypasses or short-circuits this check.**
+4. **Strict Per-Event Zod Schema Validation**: Once cryptographically verified, the payload is parsed against an event-specific Zod schema (`GitHubPushEventSchema`, `GitHubCreateEventSchema`, `GitHubDeleteEventSchema`, `GitHubReleaseEventSchema`, `GitHubPullRequestEventSchema`, `GitHubIssueEventSchema`). Untyped, unexpected, or malicious payloads fail with `400 Bad Request`.
+5. **Authenticated User & Project Resolution**: Events are only processed if the repository owner or pusher matches a registered CommitCosmos user in the database. Unregistered repos are gracefully ignored without mutating state.
+6. **Database Idempotency & Conflict Handling**: Natural unique constraints (e.g. `(project_id, sha)` on commits, `(project_id, branch_name)` on branches, and `(project_id, tag_name)` on releases) prevent duplicate records, replay attacks, or race conditions.
+
+#### Attack Surface Analysis & Threat Mitigations by Event Type
+
+| Event Type | Potential Threat / Attack Vector | CommitCosmos Defensive Mitigation |
+| :--- | :--- | :--- |
+| **`push`** | Replay of historical commits, large diff spam, fake authors | HMAC verification, 5MB size limit, deduplication via `(project_id, sha)` unique index, and author attribution fallback to authenticated OAuth user. |
+| **`create`** | Injection of fake branches, non-branch refs (tags), arbitrary strings | Strict `ref_type === 'branch'` check. Zod schema validation on branch names; tag creations are ignored. Idempotent upsert via `createOrGetBranch`. |
+| **`delete`** | Spoofed branch deletion, attempting to delete default or protected branch | HMAC signature verification. Checks `ref_type === 'branch'`. `markBranchMerged` only sets `merged_at` on tracked branches for that specific project; does not delete commits or database records. |
+| **`release`** | Fake release milestones, draft release leakage, arbitrary tag names | Only `action === 'published'` events are processed; drafts and prereleases are intentionally ignored. Release tags are recorded with parameterized queries; idempotent `unlockRelease` prevents duplicate supernova triggers. |
+| **`pull_request`** | Spoofed unmerged PRs claiming merge credit, fake merge SHAs | Strictly checks `action === 'closed'` and `pull_request.merged === true`. Open or rejected PRs are dropped. Merge commit SHAs are linked via `markCommitAsPrMerge`, attributing true PR credit. |
+| **`issues`** | Issue closure spam, XSS payloads in issue titles, fake closure animations | Checked against `action === 'closed'`. Issue titles are parameterized and rendered as escaped JSX text. Shooting star event is transient and ephemeral with zero persistent database trace. |
 
 ### B. Global Security Headers & Strict Content Security Policy (`next.config.mjs`)
 - **`X-Frame-Options: DENY`**: Prevents clickjacking by completely disallowing CommitCosmos from being embedded in iframes on third-party sites.

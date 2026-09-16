@@ -25,6 +25,19 @@ export interface GalaxyUIState {
   selectedStarId: string | null;
   setSelectedStarId: (id: string | null) => void;
 
+  /** ID of the star currently under the pointer (clears on pointer-out, not on touch) */
+  hoveredStarId: string | null;
+  setHoveredStarId: (id: string | null) => void;
+
+  /**
+   * ID of the star that was last clicked/tapped.
+   * Unlike hoveredStarId this PERSISTS after the pointer leaves — it drives the
+   * tooltip HUD so touch users (who have no hover) can inspect a star after tapping.
+   * Set to null to dismiss the tooltip.
+   */
+  pinnedStarId: string | null;
+  setPinnedStarId: (id: string | null) => void;
+
   /** Active camera navigation mode in the 3D space */
   cameraMode: CameraMode;
   setCameraMode: (mode: CameraMode) => void;
@@ -44,6 +57,20 @@ export interface GalaxyUIState {
 export const useGalaxyStore = create<GalaxyUIState>((set) => ({
   selectedStarId: null,
   setSelectedStarId: (id) => set({ selectedStarId: id }),
+
+  hoveredStarId: null,
+  setHoveredStarId: (id) =>
+    set((state) => ({
+      hoveredStarId: id,
+      selectedStarId: state.pinnedStarId ?? id,
+    })),
+
+  pinnedStarId: null,
+  setPinnedStarId: (id) =>
+    set((state) => ({
+      pinnedStarId: id,
+      selectedStarId: id ?? state.hoveredStarId,
+    })),
 
   cameraMode: 'orbit',
   setCameraMode: (mode) => set({ cameraMode: mode }),
@@ -70,6 +97,8 @@ export const useGalaxyStore = create<GalaxyUIState>((set) => ({
   resetUIState: () =>
     set({
       selectedStarId: null,
+      hoveredStarId: null,
+      pinnedStarId: null,
       cameraMode: 'orbit',
     }),
 }));

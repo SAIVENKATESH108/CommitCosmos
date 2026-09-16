@@ -39,19 +39,37 @@ export class Star {
   public readonly color: string;
   public readonly position: Vector3;
   public brightness: number;
+  public readonly sizeMultiplier: number;
+  public readonly brightnessMultiplier: number;
+  public readonly magnitude: number | null;
+  public readonly isPrMerge: boolean;
+  public readonly prNumber: number | null;
+  public readonly secondaryColor: string;
 
   constructor(
     id: string,
     commitSha: string,
     color: string,
     position: Vector3,
-    brightness: number = 0.0
+    brightness: number = 0.0,
+    sizeMultiplier: number = 1.0,
+    brightnessMultiplier: number = 1.0,
+    magnitude: number | null = null,
+    isPrMerge: boolean = false,
+    prNumber: number | null = null,
+    secondaryColor: string = '#38bdf8'
   ) {
     this.id = id;
     this.commitSha = commitSha;
     this.color = color;
     this.position = position;
     this.brightness = brightness;
+    this.sizeMultiplier = sizeMultiplier;
+    this.brightnessMultiplier = brightnessMultiplier;
+    this.magnitude = magnitude;
+    this.isPrMerge = isPrMerge;
+    this.prNumber = prNumber;
+    this.secondaryColor = secondaryColor;
   }
 
   /**

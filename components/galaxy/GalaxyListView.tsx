@@ -10,6 +10,7 @@ import type { GalaxyData, UserStatsData, GalaxyCommit, GalaxyProject } from '@/l
 interface GalaxyListViewProps {
   galaxy: GalaxyData;
   stats?: UserStatsData | null;
+  isTeamMode?: boolean;
 }
 
 /**
@@ -20,14 +21,16 @@ interface GalaxyListViewProps {
  *
  * - Real, semantic HTML <table> with proper <caption>, <thead>, and <th scope="col">
  * - Expandable repository rows with keyboard-navigable buttons (aria-expanded, aria-controls)
+ * - Multi-author team support with dedicated "Author" column and chromatic orbital tags
  * - Contrast ratios exceeding 4.5:1 (WCAG AA) for all text on dark slate backgrounds
  * - Displays the exact same server state metrics (username, total commits, streaks, projects)
  *   as the 3D scene, ensuring visual and cognitive parity across modalities.
  * ==============================================================================
  */
-export function GalaxyListView({ galaxy, stats }: GalaxyListViewProps) {
+export function GalaxyListView({ galaxy, stats, isTeamMode = false }: GalaxyListViewProps) {
   // Set of expanded project IDs for commit details
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
+  const isMultiAuthor = isTeamMode || galaxy.commits.some((c) => Boolean(c.authorUsername));
 
   const toggleProject = (projectId: string) => {
     setExpandedProjects((prev) => {
@@ -162,6 +165,20 @@ export function GalaxyListView({ galaxy, stats }: GalaxyListViewProps) {
           </span>
         </div>
 
+        {galaxy.commits.length === 0 && (
+          <div className="p-6 rounded-xl border border-indigo-500/30 bg-indigo-950/20 text-center space-y-3">
+            <div className="inline-flex p-3 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-400">
+              <Sparkles className="w-6 h-6 animate-pulse" />
+            </div>
+            <h3 className="text-lg font-bold text-white">
+              Your galaxy is waiting for its first star — push a commit to begin.
+            </h3>
+            <p className="text-xs text-slate-300 max-w-md mx-auto">
+              Every commit pushed to a connected repository lights a star in this celestial list. Connect a repository in the Observatory or push your first commit!
+            </p>
+          </div>
+        )}
+
         <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80 shadow-md">
           <table className="w-full text-left border-collapse" aria-describedby="repositories-table-heading">
             <caption className="sr-only">
@@ -258,42 +275,65 @@ export function GalaxyListView({ galaxy, stats }: GalaxyListViewProps) {
                               {projectCommits.length === 0 ? (
                                 <p className="text-xs text-slate-400 italic">No commits recorded in this repository.</p>
                               ) : (
-                                <ul className="space-y-2" aria-label={`Commits for ${project.repoName}`}>
-                                  {projectCommits.map((commit) => (
-                                    <li
-                                      key={commit.id}
-                                      className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/60 text-xs gap-2"
-                                    >
-                                      <div className="flex items-start sm:items-center space-x-2">
-                                        <code className="px-1.5 py-0.5 rounded bg-slate-800 text-indigo-300 font-mono text-[11px] shrink-0">
-                                          {commit.sha.slice(0, 7)}
-                                        </code>
-                                        <span className="text-slate-200 font-medium break-all">
-                                          {commit.message || 'No commit message'}
-                                        </span>
-                                      </div>
-
-                                      <div className="flex items-center space-x-3 text-slate-400 shrink-0">
-                                        {commit.language && (
-                                          <span className="flex items-center space-x-1 text-slate-300">
-                                            <Code className="w-3 h-3 text-indigo-400" aria-hidden="true" />
-                                            <span>{commit.language}</span>
-                                          </span>
+                                <div className="overflow-x-auto rounded-lg border border-slate-800/80 bg-slate-900/40">
+                                  <table className="w-full text-left border-collapse text-xs">
+                                    <caption className="sr-only">Recent commits for {project.repoName}</caption>
+                                    <thead>
+                                      <tr className="border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[10px]">
+                                        <th scope="col" className="py-2 px-3 w-20">SHA</th>
+                                        <th scope="col" className="py-2 px-3">Message</th>
+                                        {isMultiAuthor && (
+                                          <th scope="col" className="py-2 px-3 w-36">Author</th>
                                         )}
-                                        <span className="flex items-center space-x-1">
-                                          <Calendar className="w-3 h-3 text-slate-500" aria-hidden="true" />
-                                          <time dateTime={commit.committedAt}>
-                                            {new Date(commit.committedAt).toLocaleDateString(undefined, {
-                                              year: 'numeric',
-                                              month: 'short',
-                                              day: 'numeric',
-                                            })}
-                                          </time>
-                                        </span>
-                                      </div>
-                                    </li>
-                                  ))}
-                                </ul>
+                                        <th scope="col" className="py-2 px-3 w-24">Language</th>
+                                        <th scope="col" className="py-2 px-3 w-28 text-right">Date</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-800/40">
+                                      {projectCommits.map((commit) => (
+                                        <tr key={commit.id} className="hover:bg-slate-800/20 transition-colors">
+                                          <td className="py-2 px-3 font-mono text-indigo-300">
+                                            {commit.sha.slice(0, 7)}
+                                          </td>
+                                          <td className="py-2 px-3 text-slate-200 font-medium break-all">
+                                            {commit.message || 'No commit message'}
+                                          </td>
+                                          {isMultiAuthor && (
+                                            <td className="py-2 px-3">
+                                              <span
+                                                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold border font-mono"
+                                                style={{
+                                                  backgroundColor: commit.authorColor ? `${commit.authorColor}20` : 'rgba(99, 102, 241, 0.15)',
+                                                  borderColor: commit.authorColor ? `${commit.authorColor}40` : 'rgba(99, 102, 241, 0.3)',
+                                                  color: commit.authorColor || '#818cf8',
+                                                }}
+                                              >
+                                                <span
+                                                  className="w-1.5 h-1.5 rounded-full"
+                                                  style={{ backgroundColor: commit.authorColor || '#818cf8' }}
+                                                  aria-hidden="true"
+                                                />
+                                                @{commit.authorUsername || 'collaborator'}
+                                              </span>
+                                            </td>
+                                          )}
+                                          <td className="py-2 px-3 text-slate-400">
+                                            {commit.language || '—'}
+                                          </td>
+                                          <td className="py-2 px-3 text-slate-400 text-right">
+                                            <time dateTime={commit.committedAt}>
+                                              {new Date(commit.committedAt).toLocaleDateString(undefined, {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric',
+                                              })}
+                                            </time>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
                               )}
                             </div>
                           </td>

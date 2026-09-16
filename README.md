@@ -24,14 +24,28 @@ Traditional developer activity dashboards (like GitHub's 2D green contribution g
 
 ## 🚀 Key Features
 
+### 🌌 Galactic Visualization & Astrophysics Simulation
 - **Interactive 3D Galaxy View**: Powered by Three.js and React Three Fiber. Features continuous gentle idle auto-rotation, smooth mouse/touch orbit controls, and star inspection.
-- **Fibonacci Sphere Placement**: Pure mathematical placement using the golden-angle spiral algorithm ($θ \approx 2.39996\text{ rad}$) ensuring uniform, clump-free star distribution across the celestial sphere.
-- **Deterministic Spectral Color Mapping**: Commits inherit distinct celestial hues (TypeScript = Nebula Cyan `#38bdf8`, Python = Stellar Blue `#60a5fa`, Rust = Supernova Orange `#fb923c`, unlisted = deterministic hash fallback).
-- **Streak Constellation Forging**: Automated PostgreSQL trigger calculates consecutive daily commit streaks and connects sequential stars with starlight lines once 7-day milestones are achieved.
-- **Dynamic Star Ignition Animations**: Newly arriving commits burst into existence with an elastic bloom and high-luminosity supernova flash before settling into orbit.
-- **Accessible 2D List Modality (WCAG AA)**: Semantic `<table>` with `<thead>` and `<th scope="col">` headers, expandable commit histories, high-contrast typography, and OS reduced-motion detection.
-- **Real-Time Webhook Ingestion**: Secure write path receiving GitHub push webhooks with HMAC-SHA256 verification and Upstash Redis sliding window rate limits.
-- **Dynamic Open Graph Social Cards**: Serverless Edge route (`/api/og`) powered by `@vercel/og` dynamically generating $1200\times630\text{px}$ celestial share cards for Twitter and LinkedIn previews.
+- **Pitch-Black Deep-Void Canvas (`#000000`)**: Pure, unadulterated cosmic void with subtle starlight bloom, vignette post-processing, and 1,500 background dust motes for authentic depth perception.
+- **Fibonacci Sphere Golden-Angle Placement**: Pure mathematical placement using the golden-angle spiral algorithm ($θ \approx 2.39996\text{ rad}$) ensuring uniform, clump-free star distribution across the celestial sphere.
+- **Star Magnitude & Luminosity Hierarchy**: Visual hierarchy reflecting commit impact. Minor tweaks render as delicate dwarf stars ($0.85\times$), standard commits as main-sequence stars ($1.0\times$), and major code overhauls or merges scale up to luminous supergiants ($1.35\times$ to $1.6\times$).
+- **Deterministic Spectral Color Mapping**: Commits inherit distinct celestial hues based on language (TypeScript = Nebula Cyan `#38bdf8`, Python = Stellar Blue `#60a5fa`, Rust = Supernova Orange `#fb923c`, Go = Cyan `#22d3ee`, etc.).
+- **Camera Navigation & HUD Overlays**: Dedicated bottom-right Camera Controls (`Reset view`, `Focus latest star` with smooth 60fps easing) and bottom-left `StarTooltip` HUD card with commit message, author, language, and direct GitHub links.
+- **Dormant Protostar Empty State**: Brand-new users with zero commits are welcomed by an embryonic protostar core with gentle respiration pulse and an inspiring "First Ignition" call to action.
+
+### 🔭 Modern Git Primitives Visualized in 3D
+- **Branch Moons & Collapsing Merges**: Non-default branches orbit their repository's central cluster as distinct celestial moons with trailing commit trails. Merging or deleting a branch triggers an inward gravitational collapse and celebratory ignition flare.
+- **PR Merge Accretion Disks**: Pull Request merges render as dual-color binary stars with swirling accretion rings, representing two code branches fusing into one.
+- **Tagged Release Supernovas**: Publishing an official release triggers an expansive relativistic shockwave and leaves a permanent incandescent golden `ClusterReleaseHalo` encircling the repo.
+- **Issue Closure Shooting Stars**: Closing a GitHub issue ignites a brilliant meteor streaking across the celestial dome in real time.
+- **Multi-Author Team Star Systems**: Shared team galaxies (`/teams/[teamId]`) where each collaborator's commits appear in their own distinct chromatic orbit around the shared project core.
+
+### ⚡ Real-Time Ingestion & Accessibility
+- **Continuous Constellation Filaments**: Consecutive-day commits forge starlight filaments that grow brighter and thicker from 2-day streaks up to 7-day completed constellations with celestial pulsing.
+- **Non-Intrusive Toast Announcements**: Integrated Sonner notifications announce new stars (with batched counts for multi-commit pushes), supernovas, and shooting stars without interrupting 3D navigation.
+- **Persistent App Shell**: Sticky top navigation bar with repo filtering, commit counts, flame streak counter, and user profile switcher.
+- **Accessible 2D List Modality (WCAG AA)**: Semantic HTML `<table>` with expandable commit histories, high-contrast typography (exceeding 4.5:1), keyboard focus rings, and full `prefers-reduced-motion` compliance.
+- **Secure Webhook Pipeline**: Multi-event GitHub webhook handler (`push`, `create`, `delete`, `release`, `pull_request`, `issues`) protected by HMAC-SHA256 constant-time verification and sliding-window rate limits.
 
 ---
 
@@ -119,6 +133,9 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ### 5. Run Verification & Unit Test Suites
 ```bash
+# Run full end-to-end master regression & judge simulation suite
+npx tsx scripts/test-judge-regression.ts
+
 # Verify Domain Model logic, Centroid math, and Golden-Angle placement
 npx tsx scripts/test-galaxy-domain.ts
 

@@ -18,7 +18,7 @@ export default async function HomePage() {
   const session = await auth();
 
   return (
-    <div className="relative min-h-screen bg-[#030712] text-slate-100 overflow-x-hidden flex flex-col justify-between selection:bg-indigo-500/30 selection:text-indigo-200">
+    <div className="relative min-h-screen bg-black text-slate-100 overflow-x-hidden flex flex-col justify-between selection:bg-indigo-500/30 selection:text-indigo-200">
       {/* Background Ambient Celestial Nebulae */}
       <div
         aria-hidden="true"
@@ -33,7 +33,7 @@ export default async function HomePage() {
       <header className="relative z-20 border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-indigo-500/40 shadow-lg shadow-indigo-500/20 bg-[#030712]">
+            <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-indigo-500/40 shadow-lg shadow-indigo-500/20 bg-black">
               <Image
                 src="/commitcosmos_logo.png"
                 alt="CommitCosmos Logo"

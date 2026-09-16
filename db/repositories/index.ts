@@ -3,3 +3,7 @@ export * from './projectRepository';
 export * from './commitRepository';
 export * from './streakRepository';
 export * from './constellationRepository';
+export * from './branchRepository';
+export * from './releaseRepository';
+export * from './issueRepository';
+export * from './teamRepository';
