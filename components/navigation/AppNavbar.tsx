@@ -1,10 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
-import { Flame, FolderGit2, Box, ListFilter, LayoutDashboard } from 'lucide-react';
+import {
+  Flame,
+  FolderGit2,
+  Box,
+  ListFilter,
+  LayoutDashboard,
+  Settings,
+  Orbit,
+  Trophy,
+  Compass,
+  ChevronDown,
+} from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -68,6 +80,30 @@ export function AppNavbar({
     : selectedRepoId === 'all'
       ? `All repos (${projects.length})`
       : `${selectedProject?.repoName || 'Selected repo'} (${repoCommitCounts[selectedRepoId] ?? 0})`;
+
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsUserMenuOpen(false);
+      }
+    };
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isUserMenuOpen]);
 
   return (
     <header
@@ -198,34 +234,130 @@ export function AppNavbar({
           </div>
 
           {signedInUser ? (
-            <div className="flex items-center space-x-2">
-              {/* Avatar */}
-              <Link href={signedInUsername ? `/u/${signedInUsername}` : '/dashboard'}
-                aria-label={`View ${signedInUsername || 'your'}'s galaxy`}
-                className="group relative flex items-center rounded-full p-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-                style={{ border: '1px solid rgba(139,92,246,0.3)' }}
+            <div ref={userMenuRef} className="relative flex items-center space-x-2">
+              {/* Avatar Button Dropdown Trigger */}
+              <button
+                type="button"
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                aria-expanded={isUserMenuOpen}
+                aria-haspopup="menu"
+                aria-label={`Open user menu for ${signedInUsername || 'cosmonaut'}`}
+                className="group relative flex items-center gap-1 rounded-full p-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                style={{ border: '1px solid rgba(139,92,246,0.4)' }}
                 onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(139,92,246,0.5)'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = ''}>
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = ''}
+              >
                 {signedInAvatar ? (
-                  <Image src={signedInAvatar} alt={signedInUsername ? `${signedInUsername}'s avatar` : 'User avatar'}
-                    width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
+                  <Image
+                    src={signedInAvatar}
+                    alt={signedInUsername ? `${signedInUsername}'s avatar` : 'User avatar'}
+                    width={28}
+                    height={28}
+                    className="w-7 h-7 rounded-full object-cover"
+                    unoptimized
+                  />
                 ) : (
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs text-white"
-                    style={{ background: 'linear-gradient(135deg, #7c3aed, #0891b2)' }}>
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs text-white"
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #0891b2)' }}
+                  >
                     {(signedInUsername || 'CC').slice(0, 2).toUpperCase()}
                   </div>
                 )}
-              </Link>
+                <ChevronDown className={`w-3 h-3 text-slate-400 group-hover:text-slate-200 transition-transform duration-200 mr-0.5 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-              {/* Observatory link */}
-              <Link href="/dashboard"
+              {/* Observatory link (quick shortcut) */}
+              <Link
+                href="/dashboard"
                 className="hidden lg:inline-flex items-center gap-1 h-8 px-3 rounded-xl text-xs text-slate-400 hover:text-slate-100 transition-all"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
                 <LayoutDashboard className="w-3.5 h-3.5" />
                 <span>Observatory</span>
               </Link>
 
-              <SignOutButton />
+              {/* Dropdown Menu */}
+              <AnimatePresence>
+                {isUserMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-black/95 backdrop-blur-2xl border border-white/15 shadow-2xl shadow-black/90 p-2 z-50 text-slate-200 divide-y divide-white/[0.08]"
+                  >
+                    {/* Header */}
+                    <div className="px-3 py-2.5 mb-1">
+                      <p className="text-xs font-bold text-white truncate">
+                        {'name' in signedInUser && signedInUser.name ? signedInUser.name : signedInUsername}
+                      </p>
+                      <p className="text-[11px] font-mono text-violet-300 truncate">
+                        @{signedInUsername}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-1 text-[10px] text-emerald-400 font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>Active Cosmonaut</span>
+                      </div>
+                    </div>
+
+                    {/* Navigation Items */}
+                    <div className="py-1.5 space-y-0.5">
+                      {signedInUsername && (
+                        <Link
+                          href={`/u/${signedInUsername}`}
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+                        >
+                          <Orbit className="w-4 h-4 text-cyan-400" />
+                          <span className="font-medium">Your 3D Galaxy</span>
+                        </Link>
+                      )}
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-violet-400" />
+                        <span className="font-medium">Observatory (Dashboard)</span>
+                      </Link>
+                      <Link
+                        href="/settings"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+                      >
+                        <Settings className="w-4 h-4 text-amber-400" />
+                        <span className="font-medium">Cosmic Settings</span>
+                      </Link>
+                    </div>
+
+                    {/* Community Pages */}
+                    <div className="py-1.5 space-y-0.5">
+                      <Link
+                        href="/leaderboard"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+                      >
+                        <Trophy className="w-4 h-4 text-amber-300" />
+                        <span>Leaderboard</span>
+                      </Link>
+                      <Link
+                        href="/explore"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+                      >
+                        <Compass className="w-4 h-4 text-indigo-400" />
+                        <span>Explore Galaxies</span>
+                      </Link>
+                    </div>
+
+                    {/* Sign Out Action */}
+                    <div className="pt-1.5 px-1">
+                      <SignOutButton />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ) : (
             <div className="flex items-center space-x-2">
