@@ -34,6 +34,7 @@ export interface AppNavbarProps {
   isListView?: boolean;
   onToggleListView?: (isList: boolean) => void;
   pageBadge?: string;
+  isLoading?: boolean;
 }
 
 export function AppNavbar({
@@ -49,6 +50,7 @@ export function AppNavbar({
   isListView = false,
   onToggleListView,
   pageBadge,
+  isLoading = false,
 }: AppNavbarProps) {
   const { data: session } = useSession();
 
@@ -59,10 +61,11 @@ export function AppNavbar({
     (signedInUser && 'avatarUrl' in signedInUser ? (signedInUser as { avatarUrl?: string | null }).avatarUrl : null) ||
     (profileUsername === signedInUsername ? profileAvatarUrl : null);
 
-  const streakDaysText = `${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`;
+  const streakDaysText = isLoading ? '— days' : `${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`;
   const selectedProject = projects.find((p) => p.id === selectedRepoId);
-  const selectedRepoLabel =
-    selectedRepoId === 'all'
+  const selectedRepoLabel = isLoading
+    ? 'Loading...'
+    : selectedRepoId === 'all'
       ? `All repos (${totalCommits})`
       : `${selectedProject?.repoName || 'Selected repo'} (${repoCommitCounts[selectedRepoId] ?? 0})`;
 

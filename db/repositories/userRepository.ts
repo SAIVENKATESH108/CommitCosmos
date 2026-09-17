@@ -100,3 +100,58 @@ export async function getUserStats(
     longestStreak: Number(row.longest_streak),
   };
 }
+
+export interface LeaderboardEntry extends UserStats {
+  avatarUrl?: string | null;
+  rank: number;
+}
+
+/**
+ * Returns the top-N users sorted by either current_streak or total_commits.
+ * Joins user_stats_view with users table to include avatar URLs.
+ */
+export async function getLeaderboard(
+  limit = 20,
+  sortBy: 'streak' | 'stars' = 'streak'
+): Promise<LeaderboardEntry[]> {
+  const orderCol = sortBy === 'streak' ? 'current_streak' : 'total_commits';
+
+  const result = await db.execute(
+    sql`SELECT v.user_id, v.github_username, v.total_commits, v.total_projects,
+               v.current_streak, v.longest_streak, u.avatar_url
+        FROM user_stats_view v
+        JOIN users u ON u.id = v.user_id
+        WHERE v.total_commits > 0
+        ORDER BY v.${sql.raw(orderCol)} DESC, v.total_commits DESC
+        LIMIT ${limit}`
+  );
+
+  return (result.rows as Array<{
+    user_id: string;
+    github_username: string;
+    total_commits: number | string;
+    total_projects: number | string;
+    current_streak: number | string;
+    longest_streak: number | string;
+    avatar_url: string | null;
+  }>).map((row, i) => ({
+    rank: i + 1,
+    userId: String(row.user_id),
+    githubUsername: String(row.github_username),
+    totalCommits: Number(row.total_commits),
+    totalProjects: Number(row.total_projects),
+    currentStreak: Number(row.current_streak),
+    longestStreak: Number(row.longest_streak),
+    avatarUrl: row.avatar_url,
+  }));
+}
+
+/**
+ * Returns a list of public galaxies for the explore/gallery page.
+ */
+export async function getPublicGalaxies(
+  limit = 24
+): Promise<LeaderboardEntry[]> {
+  return getLeaderboard(limit, 'stars');
+}
+

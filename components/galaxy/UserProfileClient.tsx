@@ -125,6 +125,7 @@ export function UserProfileClient({ username, sessionUser }: UserProfileClientPr
         repoCommitCounts={repoCommitCounts}
         isListView={isAccessibilityListView}
         onToggleListView={setAccessibilityListView}
+        isLoading={isGalaxyLoading}
       />
 
       {/* ================= 2. MAIN VIEWPORT ================= */}

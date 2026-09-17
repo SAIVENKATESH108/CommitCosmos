@@ -72,6 +72,15 @@ export default async function HomePage() {
 
           {/* Nav links */}
           <nav className="hidden md:flex items-center gap-6">
+            <Link href="/explore" className="text-xs font-medium text-slate-400 hover:text-white transition-colors">
+              Explore
+            </Link>
+            <Link href="/leaderboard" className="text-xs font-medium text-slate-400 hover:text-white transition-colors">
+              Leaderboard
+            </Link>
+            <Link href="/how-it-works" className="text-xs font-medium text-slate-400 hover:text-white transition-colors">
+              Architecture
+            </Link>
             <Link href="/u/galaxy-explorer" className="text-xs font-medium text-slate-400 hover:text-white transition-colors">
               Demo Galaxy
             </Link>
@@ -301,7 +310,16 @@ export default async function HomePage() {
             </div>
             <p className="text-xs text-slate-500">© 2026 CommitCosmos · Built for First Commit Hackathon</p>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-6">
+            <Link href="/explore" className="text-xs text-slate-500 hover:text-slate-200 transition-colors font-medium">
+              Explore
+            </Link>
+            <Link href="/leaderboard" className="text-xs text-slate-500 hover:text-slate-200 transition-colors font-medium">
+              Leaderboard
+            </Link>
+            <Link href="/how-it-works" className="text-xs text-slate-500 hover:text-slate-200 transition-colors font-medium">
+              Architecture
+            </Link>
             <Link href="/u/galaxy-explorer" className="text-xs text-slate-500 hover:text-slate-200 transition-colors font-medium">
               Demo Galaxy
             </Link>

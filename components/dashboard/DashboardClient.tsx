@@ -264,6 +264,7 @@ export function DashboardClient({
                 {[
                   { value: 'clusters', label: `Star Clusters (${projects.length})` },
                   { value: 'webhook', label: 'Webhook Setup' },
+                  { value: 'badge', label: 'README Badge' },
                   { value: 'constellations', label: `Constellations (${constellations.length})` },
                   { value: 'spectrals', label: 'Spectral Engine' },
                 ].map(tab => (
@@ -426,7 +427,73 @@ export function DashboardClient({
               </div>
             </TabsContent>
 
-            {/* TAB 3: Constellations */}
+            {/* TAB 3: README Badge */}
+            <TabsContent value="badge" className="pt-4">
+              <div className="space-y-5">
+                <div className="p-4 rounded-2xl flex items-start gap-3.5"
+                  style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.25)' }}>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.3)' }}>
+                    <Star className="w-4 h-4 text-violet-400" />
+                  </div>
+                  <div className="text-xs text-slate-300 leading-relaxed">
+                    <strong className="text-white font-semibold block mb-0.5">Embed in your GitHub Profile or Repository README</strong>
+                    Showcase your commit streak and ignited stars with an auto-updating live SVG badge.
+                  </div>
+                </div>
+
+                {/* Badge Preview */}
+                <div className="p-6 rounded-2xl text-center flex flex-col items-center justify-center"
+                  style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-4">Live Badge Preview</span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/api/badge/${user.githubUsername}`}
+                    alt={`CommitCosmos badge for ${user.githubUsername}`}
+                    className="h-9 w-auto max-w-full"
+                  />
+                </div>
+
+                {/* Code Snippets */}
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-slate-300">Markdown Snippet (for README.md)</span>
+                      <button
+                        onClick={() => copyToClipboard(`[![CommitCosmos](${productionUrl}/api/badge/${user.githubUsername})](${productionUrl}/u/${user.githubUsername})`, 'badgeMarkdown')}
+                        className="inline-flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                      >
+                        {copiedField === 'badgeMarkdown' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedField === 'badgeMarkdown' ? 'Copied!' : 'Copy Markdown'}</span>
+                      </button>
+                    </div>
+                    <p className="text-xs font-mono p-3 rounded-xl break-all select-all text-slate-300"
+                      style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {`[![CommitCosmos](${productionUrl}/api/badge/${user.githubUsername})](${productionUrl}/u/${user.githubUsername})`}
+                    </p>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-slate-300">Direct SVG URL</span>
+                      <button
+                        onClick={() => copyToClipboard(`${productionUrl}/api/badge/${user.githubUsername}`, 'badgeUrl')}
+                        className="inline-flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                      >
+                        {copiedField === 'badgeUrl' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedField === 'badgeUrl' ? 'Copied!' : 'Copy URL'}</span>
+                      </button>
+                    </div>
+                    <p className="text-xs font-mono p-3 rounded-xl break-all select-all text-cyan-300"
+                      style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {`${productionUrl}/api/badge/${user.githubUsername}`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* TAB 4: Constellations */}
             <TabsContent value="constellations" className="pt-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {constellationMilestones.map((c, i) => (
