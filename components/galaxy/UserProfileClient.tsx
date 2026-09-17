@@ -8,7 +8,6 @@ import { useGalaxyData, useUserStats } from '@/lib/queries';
 import { useGalaxyStore } from '@/lib/store';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { GalaxyListView } from '@/components/galaxy/GalaxyListView';
 import { AppNavbar } from '@/components/navigation/AppNavbar';
 import {

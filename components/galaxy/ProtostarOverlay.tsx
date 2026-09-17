@@ -2,8 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, Terminal, ArrowRight, GitBranch } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Sparkles, Terminal, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface ProtostarOverlayProps {

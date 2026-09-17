@@ -2,7 +2,7 @@
 
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars as DreiStars, Line, Float } from '@react-three/drei';
+import { OrbitControls, Stars as DreiStars, Float } from '@react-three/drei';
 import * as THREE from 'three';
 import { Star, Cluster, StarFactory } from '@/lib/galaxy';
 import {
@@ -589,7 +589,7 @@ export function GalaxyScene({
   branches = [],
   releases = [],
   closedIssues = [],
-  constellations,
+  constellations: _constellations,
   username,
 }: GalaxySceneProps) {
   const { selectedStarId, setSelectedStarId } = useGalaxyStore();

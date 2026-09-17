@@ -18,8 +18,6 @@ import {
   Copy,
   Check,
   Sparkles,
-  GitCommit,
-  FolderGit2,
   AlertCircle,
   Eye,
   Layers,
@@ -48,7 +46,7 @@ interface TeamGalaxyClientProps {
   } | null;
 }
 
-export function TeamGalaxyClient({ teamId, sessionUser }: TeamGalaxyClientProps) {
+export function TeamGalaxyClient({ teamId, sessionUser: _sessionUser }: TeamGalaxyClientProps) {
   const queryClient = useQueryClient();
   const { isAccessibilityListView, setAccessibilityListView } = useGalaxyStore();
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -90,8 +88,9 @@ export function TeamGalaxyClient({ teamId, sessionUser }: TeamGalaxyClientProps)
       toast.success(`Added @${inviteUsername} to the team star system!`);
       setInviteUsername('');
       queryClient.invalidateQueries({ queryKey: ['team-galaxy', teamId] });
-    } catch (err: any) {
-      toast.error(err.message || 'Error inviting member');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error inviting member';
+      toast.error(message);
     } finally {
       setIsInviting(false);
     }

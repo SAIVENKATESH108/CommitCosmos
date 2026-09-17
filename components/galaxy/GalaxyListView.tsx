@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, GitCommit, Flame, FolderGit2, ChevronDown, ChevronRight, ExternalLink, Calendar, Code } from 'lucide-react';
+import { Sparkles, GitCommit, Flame, FolderGit2, ChevronDown, ChevronRight, ExternalLink } from 'lucide-react';
 import type { GalaxyData, UserStatsData, GalaxyCommit, GalaxyProject } from '@/lib/queries';
 
 interface GalaxyListViewProps {

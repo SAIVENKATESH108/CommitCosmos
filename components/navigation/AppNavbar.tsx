@@ -4,15 +4,13 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { Flame, FolderGit2, Box, ListFilter, LayoutDashboard, Sparkles } from 'lucide-react';
+import { Flame, FolderGit2, Box, ListFilter, LayoutDashboard } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select';
 import { SignOutButton } from '@/components/auth/SignOutButton';
 import { SignInButton } from '@/components/auth/SignInButton';

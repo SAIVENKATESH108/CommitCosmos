@@ -23,7 +23,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { SignOutButton } from '@/components/auth/SignOutButton';
 import { AppNavbar } from '@/components/navigation/AppNavbar';
 import type { UserStats, Project, Constellation, Commit } from '@/db/schema';
 
