@@ -42,6 +42,19 @@ export interface GalaxyUIState {
   cameraMode: CameraMode;
   setCameraMode: (mode: CameraMode) => void;
 
+  /** Cinematic Tour: smooth automatic choreography through the galaxy */
+  isCinematicTour: boolean;
+  setIsCinematicTour: (active: boolean) => void;
+  toggleCinematicTour: () => void;
+
+  /** Timeline Replay: chronological scrubbing of commit star evolution (null = live 100%) */
+  timelineIndex: number | null;
+  setTimelineIndex: (index: number | null) => void;
+  isTimelinePlaying: boolean;
+  setIsTimelinePlaying: (playing: boolean) => void;
+  timelineSpeed: number; // 1, 2, 4
+  setTimelineSpeed: (speed: number) => void;
+
   /** Whether the accessible 2D list-view fallback is active instead of the WebGL 3D scene */
   isAccessibilityListView: boolean;
   isListView: boolean;
@@ -75,6 +88,17 @@ export const useGalaxyStore = create<GalaxyUIState>((set) => ({
   cameraMode: 'orbit',
   setCameraMode: (mode) => set({ cameraMode: mode }),
 
+  isCinematicTour: false,
+  setIsCinematicTour: (active) => set({ isCinematicTour: active }),
+  toggleCinematicTour: () => set((state) => ({ isCinematicTour: !state.isCinematicTour })),
+
+  timelineIndex: null,
+  setTimelineIndex: (index) => set({ timelineIndex: index }),
+  isTimelinePlaying: false,
+  setIsTimelinePlaying: (playing) => set({ isTimelinePlaying: playing }),
+  timelineSpeed: 1,
+  setTimelineSpeed: (speed) => set({ timelineSpeed: speed }),
+
   isAccessibilityListView: false,
   get isListView() {
     return this.isAccessibilityListView;
@@ -100,5 +124,8 @@ export const useGalaxyStore = create<GalaxyUIState>((set) => ({
       hoveredStarId: null,
       pinnedStarId: null,
       cameraMode: 'orbit',
+      isCinematicTour: false,
+      timelineIndex: null,
+      isTimelinePlaying: false,
     }),
 }));

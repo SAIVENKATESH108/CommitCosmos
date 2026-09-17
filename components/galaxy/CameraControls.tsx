@@ -1,44 +1,66 @@
 'use client';
 
-import React from 'react';
-import { RotateCcw, Crosshair } from 'lucide-react';
+import { RotateCcw, Crosshair, Film, Camera } from 'lucide-react';
+import { useGalaxyStore } from '@/lib/store';
 
 interface CameraControlsProps {
   onResetView: () => void;
   onFocusLatestStar: () => void;
   hasLatestStar: boolean;
+  onExportWallpaper?: () => void;
 }
 
 /**
  * ==============================================================================
  * CameraControls
  * ==============================================================================
- * Rendered as an HTML overlay (sibling of <Canvas>, outside WebGL context).
- * Positioned in the bottom-right corner (bottom-28 sm:bottom-6 right-4 sm:right-6)
- * to prevent overlap with:
- *  - The Celestial Metrics card (top-right)
- *  - The Galaxy / Accessible List view switch (header top-right)
- *  - The StarTooltip HUD card (bottom-left)
- *
- * Provides two essential navigation actions:
- *  1. Reset View: returns camera to default position [0, 20, 85] and target [0, 0, 0]
- *  2. Focus Latest Star: smoothly interpolates camera to center on the newest commit star
- *
- * Fully operable via keyboard with explicit <button> elements, visible focus rings,
- * and standard ARIA attributes.
+ * Positioned in the bottom-right corner as an HTML overlay.
+ * Provides four essential navigation & presentation actions:
+ *  1. Reset View: returns camera to default position and target
+ *  2. Focus Latest Star: centers camera on the newest commit star
+ *  3. Cinematic Tour: automated choreographed flight through the cosmos
+ *  4. Export Wallpaper: captures a high-resolution branded celestial snapshot
  * ==============================================================================
  */
 export function CameraControls({
   onResetView,
   onFocusLatestStar,
   hasLatestStar,
+  onExportWallpaper,
 }: CameraControlsProps) {
+  const { isCinematicTour, toggleCinematicTour } = useGalaxyStore();
+
   return (
     <nav
       aria-label="3D Galaxy camera controls"
-      className="absolute bottom-28 sm:bottom-6 right-4 sm:right-6 z-30 flex items-center gap-2 pointer-events-auto select-none"
+      className="absolute bottom-28 sm:bottom-6 right-4 sm:right-6 z-30 flex items-center gap-2 pointer-events-auto select-none flex-wrap justify-end"
     >
-      {/* 1. Reset View Button */}
+      {/* 1. Cinematic Tour Button */}
+      <button
+        type="button"
+        onClick={toggleCinematicTour}
+        aria-pressed={isCinematicTour}
+        aria-label={isCinematicTour ? 'Stop cinematic tour (ESC)' : 'Start cinematic tour'}
+        className={`group relative flex items-center gap-2 px-3.5 py-2 rounded-xl backdrop-blur-xl border transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
+          isCinematicTour
+            ? 'bg-violet-950/90 border-violet-500/80 text-violet-200 shadow-xl shadow-violet-950/80 ring-1 ring-violet-500/40'
+            : 'bg-black/80 hover:bg-black/95 border-white/10 hover:border-violet-500/50 text-slate-300 hover:text-white shadow-2xl shadow-black/80'
+        }`}
+      >
+        {isCinematicTour ? (
+          <span className="w-2 h-2 rounded-full bg-violet-400 animate-ping" />
+        ) : (
+          <Film
+            className="w-3.5 h-3.5 text-violet-400 group-hover:scale-110 transition-transform duration-200"
+            aria-hidden="true"
+          />
+        )}
+        <span className="text-xs font-medium tracking-wide">
+          {isCinematicTour ? 'Touring (ESC)' : 'Cinematic Tour'}
+        </span>
+      </button>
+
+      {/* 2. Reset View Button */}
       <button
         type="button"
         onClick={onResetView}
@@ -49,10 +71,10 @@ export function CameraControls({
           className="w-3.5 h-3.5 text-indigo-400 group-hover:rotate-[-45deg] transition-transform duration-200"
           aria-hidden="true"
         />
-        <span className="text-xs font-medium tracking-wide">Reset view</span>
+        <span className="text-xs font-medium tracking-wide hidden sm:inline">Reset view</span>
       </button>
 
-      {/* 2. Focus Latest Star Button */}
+      {/* 3. Focus Latest Star Button */}
       <button
         type="button"
         onClick={onFocusLatestStar}
@@ -64,8 +86,25 @@ export function CameraControls({
           className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform duration-200"
           aria-hidden="true"
         />
-        <span className="text-xs font-medium tracking-wide">Focus latest star</span>
+        <span className="text-xs font-medium tracking-wide hidden sm:inline">Focus latest</span>
       </button>
+
+      {/* 4. Export Wallpaper Button */}
+      {onExportWallpaper && (
+        <button
+          type="button"
+          onClick={onExportWallpaper}
+          title="Export 4K cosmic wallpaper"
+          aria-label="Export high-resolution galaxy wallpaper"
+          className="group relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-black/80 hover:bg-black/95 backdrop-blur-xl border border-white/10 hover:border-emerald-500/50 text-slate-300 hover:text-white shadow-2xl shadow-black/80 transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+        >
+          <Camera
+            className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform duration-200"
+            aria-hidden="true"
+          />
+          <span className="text-xs font-medium tracking-wide hidden sm:inline">Wallpaper</span>
+        </button>
+      )}
     </nav>
   );
 }

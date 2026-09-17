@@ -16,7 +16,10 @@ import {
   Flame,
   FolderGit2,
   AlertCircle,
+  Zap,
 } from 'lucide-react';
+import { CosmicPersonaCard } from '@/components/galaxy/CosmicPersonaCard';
+import { GalaxyTimelineScrubber } from '@/components/galaxy/GalaxyTimelineScrubber';
 
 // Dynamically import GalaxyScene with SSR disabled since WebGL Canvas depends on browser DOM & GPU
 const GalaxyScene = dynamic(
@@ -45,6 +48,7 @@ interface UserProfileClientProps {
 export function UserProfileClient({ username, sessionUser }: UserProfileClientProps) {
   const { isAccessibilityListView, setAccessibilityListView } = useGalaxyStore();
   const [selectedRepoId, setSelectedRepoId] = useState<string>('all');
+  const [activeSideTab, setActiveSideTab] = useState<'metrics' | 'persona'>('metrics');
 
   // Fetch real-time polled galaxy dataset & aggregate statistics
   const {
@@ -188,79 +192,108 @@ export function UserProfileClient({ username, sessionUser }: UserProfileClientPr
                 username={username}
               />
 
-              {/* Floating Top-Right Stats Card */}
+              {/* Floating Top-Right Stats & Cosmic Persona Card */}
               <aside
-                aria-label="Celestial Metrics"
-                className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 pointer-events-auto"
+                aria-label="Celestial Operations"
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 pointer-events-auto flex flex-col gap-2 w-72 sm:w-80"
               >
-                <Card className="w-72 sm:w-80 bg-slate-950/85 border-slate-800/80 backdrop-blur-md shadow-2xl text-slate-200">
-                  <CardHeader className="p-4 pb-2 border-b border-slate-800/60 flex flex-row items-center justify-between space-y-0">
-                    <CardTitle className="text-xs sm:text-sm font-semibold text-slate-100 flex items-center space-x-2">
-                      <Sparkles className="w-4 h-4 text-indigo-400" aria-hidden="true" />
-                      <span>Celestial Metrics</span>
-                    </CardTitle>
-                    <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-                      Live 20s
-                    </span>
-                  </CardHeader>
+                {/* Tab Switcher */}
+                <div className="flex items-center p-1 rounded-xl bg-slate-950/85 border border-slate-800/80 backdrop-blur-md shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => setActiveSideTab('metrics')}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      activeSideTab === 'metrics'
+                        ? 'bg-white/10 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Metrics</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSideTab('persona')}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      activeSideTab === 'persona'
+                        ? 'bg-violet-500/20 text-violet-200 border border-violet-500/30 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <Zap className="w-3.5 h-3.5 text-amber-400" />
+                    <span>✦ Persona</span>
+                  </button>
+                </div>
 
-                  <CardContent className="p-4 pt-3 space-y-2.5">
-                    {/* Stars in View */}
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/50">
-                      <div className="flex items-center space-x-2.5">
-                        <div className="p-1.5 rounded-md bg-amber-500/10 text-amber-300" aria-hidden="true">
-                          <GitCommit className="w-4 h-4" />
-                        </div>
-                        <span className="text-xs font-medium text-slate-300">
-                          {selectedRepoId === 'all' ? 'Stars (Commits)' : 'Repo Stars'}
-                        </span>
-                      </div>
-                      <span className="text-sm font-bold text-white">{displayCommitCount}</span>
-                    </div>
+                {activeSideTab === 'metrics' ? (
+                  <Card className="w-full bg-slate-950/85 border-slate-800/80 backdrop-blur-md shadow-2xl text-slate-200">
+                    <CardHeader className="p-4 pb-2 border-b border-slate-800/60 flex flex-row items-center justify-between space-y-0">
+                      <CardTitle className="text-xs sm:text-sm font-semibold text-slate-100 flex items-center space-x-2">
+                        <Sparkles className="w-4 h-4 text-indigo-400" aria-hidden="true" />
+                        <span>Celestial Metrics</span>
+                      </CardTitle>
+                      <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                        Live 20s
+                      </span>
+                    </CardHeader>
 
-                    {/* Streak Counter */}
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/50">
-                      <div className="flex items-center space-x-2.5">
-                        <div className="p-1.5 rounded-md bg-orange-500/10 text-orange-300" aria-hidden="true">
-                          <Flame className="w-4 h-4" />
+                    <CardContent className="p-4 pt-3 space-y-2.5">
+                      {/* Stars in View */}
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/50">
+                        <div className="flex items-center space-x-2.5">
+                          <div className="p-1.5 rounded-md bg-amber-500/10 text-amber-300" aria-hidden="true">
+                            <GitCommit className="w-4 h-4" />
+                          </div>
+                          <span className="text-xs font-medium text-slate-300">
+                            {selectedRepoId === 'all' ? 'Stars (Commits)' : 'Repo Stars'}
+                          </span>
                         </div>
-                        <div>
-                          <span className="text-xs font-medium text-slate-300">Daily Streak</span>
-                          <span className="block text-[10px] text-slate-400">Best: {longestStreak}d</span>
-                        </div>
+                        <span className="text-sm font-bold text-white">{displayCommitCount}</span>
                       </div>
-                      <Badge className="bg-orange-950/70 text-orange-300 border-orange-800/50 text-xs">
-                        {currentStreak} {currentStreak === 1 ? 'day' : 'days'}
-                      </Badge>
-                    </div>
 
-                    {/* Connected Projects */}
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/50">
-                      <div className="flex items-center space-x-2.5">
-                        <div className="p-1.5 rounded-md bg-indigo-500/10 text-indigo-300" aria-hidden="true">
-                          <FolderGit2 className="w-4 h-4" />
+                      {/* Streak Counter */}
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/50">
+                        <div className="flex items-center space-x-2.5">
+                          <div className="p-1.5 rounded-md bg-orange-500/10 text-orange-300" aria-hidden="true">
+                            <Flame className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-xs font-medium text-slate-300">Daily Streak</span>
+                            <span className="block text-[10px] text-slate-400">Best: {longestStreak}d</span>
+                          </div>
                         </div>
-                        <span className="text-xs font-medium text-slate-300">
-                          {selectedRepoId === 'all' ? 'Constellation Clusters' : 'Active Cluster'}
-                        </span>
+                        <Badge className="bg-orange-950/70 text-orange-300 border-orange-800/50 text-xs">
+                          {currentStreak} {currentStreak === 1 ? 'day' : 'days'}
+                        </Badge>
                       </div>
-                      <span className="text-sm font-bold text-white">{projectCount}</span>
-                    </div>
-                  </CardContent>
-                </Card>
+
+                      {/* Connected Projects */}
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/50">
+                        <div className="flex items-center space-x-2.5">
+                          <div className="p-1.5 rounded-md bg-indigo-500/10 text-indigo-300" aria-hidden="true">
+                            <FolderGit2 className="w-4 h-4" />
+                          </div>
+                          <span className="text-xs font-medium text-slate-300">
+                            {selectedRepoId === 'all' ? 'Constellation Clusters' : 'Active Cluster'}
+                          </span>
+                        </div>
+                        <span className="text-sm font-bold text-white">{projectCount}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <CosmicPersonaCard
+                    username={galaxy?.user?.githubUsername || username}
+                    commits={galaxy?.commits || []}
+                    projects={galaxy?.projects || []}
+                    streak={currentStreak}
+                  />
+                )}
               </aside>
 
-              {/* Bottom-Center Interactive Controls Hint */}
-              <footer className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-                <div className="px-4 py-1.5 rounded-full bg-slate-950/75 border border-slate-800/70 backdrop-blur-sm text-[11px] sm:text-xs text-slate-300 flex items-center space-x-2 shadow-lg">
-                  <span>Drag to orbit</span>
-                  <span className="text-slate-600" aria-hidden="true">•</span>
-                  <span>Scroll to zoom</span>
-                  <span className="text-slate-600" aria-hidden="true">•</span>
-                  <span>Click star to inspect</span>
-                </div>
-              </footer>
+              {/* Bottom Interactive Time-Lapse Scrubber */}
+              <GalaxyTimelineScrubber commits={filteredCommits} />
             </motion.div>
           )}
         </AnimatePresence>

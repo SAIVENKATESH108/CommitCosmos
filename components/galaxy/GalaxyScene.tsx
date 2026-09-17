@@ -25,6 +25,8 @@ import { SupernovaEffect } from '@/components/galaxy/SupernovaEffect';
 import { ClusterReleaseHalo } from '@/components/galaxy/ClusterReleaseHalo';
 import { PrMergeStar } from '@/components/galaxy/PrMergeStar';
 import { ShootingStar } from '@/components/galaxy/ShootingStar';
+import { CinematicTour } from '@/components/galaxy/CinematicTour';
+import { toast } from 'sonner';
 
 /**
  * ==============================================================================
@@ -592,8 +594,18 @@ export function GalaxyScene({
   constellations: _constellations,
   username,
 }: GalaxySceneProps) {
-  const { selectedStarId, setSelectedStarId } = useGalaxyStore();
+  const { selectedStarId, setSelectedStarId, timelineIndex } = useGalaxyStore();
   const previousStarIdsRef = useRef<Set<string>>(new Set());
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Active commits filtered by timeline scrubber (null = all commits / live view)
+  const activeCommits = useMemo(() => {
+    if (timelineIndex === null) return commits;
+    const sorted = [...commits].sort(
+      (a, b) => new Date(a.committedAt).getTime() - new Date(b.committedAt).getTime()
+    );
+    return sorted.slice(0, Math.max(1, Math.min(timelineIndex, sorted.length)));
+  }, [commits, timelineIndex]);
 
   // Track newly arrived releases to trigger supernova shockwaves
   const [activeSupernovas, setActiveSupernovas] = useState<string[]>([]);
@@ -684,7 +696,7 @@ export function GalaxyScene({
     const map = new Map<string, GalaxyCommit[]>();
     const main: GalaxyCommit[] = [];
 
-    commits.forEach((c) => {
+    activeCommits.forEach((c) => {
       if (c.branchId && activeMoonBranchIds.has(c.branchId)) {
         const list = map.get(c.branchId) || [];
         list.push(c);
@@ -695,7 +707,7 @@ export function GalaxyScene({
     });
 
     return { branchCommitsMap: map, mainCommits: main };
-  }, [commits, activeMoonBranchIds]);
+  }, [activeCommits, activeMoonBranchIds]);
 
   // 1. Memoize Domain Model Instantiation via StarFactory so placement math
   // only recomputes when the underlying commits count or ids change.
@@ -825,13 +837,55 @@ export function GalaxyScene({
     useGalaxyStore.getState().setPinnedStarId(latestStar.id);
   }, [latestStar]);
 
+  const handleExportWallpaper = useCallback(() => {
+    const canvas = containerRef.current?.querySelector('canvas');
+    if (!canvas) {
+      toast.error('Could not access WebGL canvas for wallpaper export');
+      return;
+    }
+
+    try {
+      const width = canvas.width;
+      const height = canvas.height;
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = width;
+      exportCanvas.height = height;
+      const ctx = exportCanvas.getContext('2d');
+      if (!ctx) return;
+
+      // Draw 3D scene from WebGL canvas
+      ctx.drawImage(canvas, 0, 0);
+
+      // Aesthetic branded watermark
+      const fontSize = Math.max(14, Math.floor(width / 75));
+      ctx.font = `600 ${fontSize}px sans-serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.shadowColor = 'rgba(139, 92, 246, 0.8)';
+      ctx.shadowBlur = 10;
+      ctx.fillText(
+        `✦ CommitCosmos · @${username || 'cosmonaut'} · ${stars.length} Stars Ignited`,
+        24,
+        height - 24
+      );
+
+      const dataUrl = exportCanvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `CommitCosmos-${username || 'galaxy'}-wallpaper.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success('Cosmic wallpaper exported!');
+    } catch {
+      toast.error('Failed to export wallpaper');
+    }
+  }, [username, stars.length]);
+
   return (
-    <div className="relative w-full h-full min-h-[500px] overflow-hidden bg-black">
+    <div ref={containerRef} className="relative w-full h-full min-h-[500px] overflow-hidden bg-black">
       {/* 3D WebGL Canvas */}
       <Canvas
         camera={{ position: [0, 20, 85], fov: 60 }}
         dpr={[1, 2]}
-        gl={{ antialias: true, alpha: false }}
+        gl={{ antialias: true, alpha: false, preserveDrawingBuffer: true }}
         onPointerMissed={() => {
           // Clear ALL selection state when clicking the canvas void
           setSelectedStarId(null);
@@ -906,6 +960,9 @@ export function GalaxyScene({
           rotateSpeed={0.8}
         />
 
+        {/* Autonomous Choreographed Cinematic Fly-Through */}
+        <CinematicTour controlsRef={controlsRef} />
+
         {/* Post-processing: Bloom on emissive stars + edge vignette.
             Mounted last so it composites over everything above.
             Adapts quality automatically when starCount > 200. */}
@@ -921,13 +978,14 @@ export function GalaxyScene({
       )}
 
       {/* Star HUD tooltip — lives outside Canvas as a normal DOM overlay (bottom-left) */}
-      <StarTooltip commits={commits} projects={projects} branches={branches} />
+      <StarTooltip commits={activeCommits} projects={projects} branches={branches} />
 
       {/* Camera Controls — HTML overlay (bottom-right), zero overlap with stats or view switch */}
       <CameraControls
         onResetView={handleResetView}
         onFocusLatestStar={handleFocusLatestStar}
         hasLatestStar={Boolean(latestStar)}
+        onExportWallpaper={handleExportWallpaper}
       />
     </div>
   );
