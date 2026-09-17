@@ -254,6 +254,47 @@ export function buildConstellationChains(
     });
   }
 
+  // 4. Build Intra-Project Constellation Networks
+  // Connects stars within each repository cluster into a celestial constellation web
+  const commitsByProject = new Map<string, GalaxyCommit[]>();
+  commits.forEach((c) => {
+    const list = commitsByProject.get(c.projectId) || [];
+    list.push(c);
+    commitsByProject.set(c.projectId, list);
+  });
+
+  commitsByProject.forEach((projCommits, projId) => {
+    if (projCommits.length < 2) return;
+
+    // Sort chronologically
+    projCommits.sort(
+      (a, b) => new Date(a.committedAt).getTime() - new Date(b.committedAt).getTime()
+    );
+
+    const projectStars: Star[] = [];
+    const projectDates: string[] = [];
+
+    projCommits.forEach((c) => {
+      const s = starMap.get(c.id);
+      if (s && !projectStars.includes(s)) {
+        projectStars.push(s);
+        projectDates.push(c.committedAt.slice(0, 10));
+      }
+    });
+
+    if (projectStars.length >= 2) {
+      segments.push({
+        id: `cluster-${projId}`,
+        stars: projectStars,
+        dates: projectDates,
+        streakLength: Math.min(CONSTELLATION_COMPLETION_THRESHOLD, projectStars.length),
+        isComplete: projectStars.length >= 5,
+        isCurrentStreak: false,
+        name: 'Cluster Constellation',
+      });
+    }
+  });
+
   return segments;
 }
 
@@ -264,13 +305,22 @@ export function computeConstellationEdges(
   segments: ConstellationSegment[]
 ): ConstellationEdge[] {
   const edges: ConstellationEdge[] = [];
+  const edgeDeduplication = new Set<string>();
 
   segments.forEach((segment) => {
+    const isCluster = segment.id.startsWith('cluster-');
+
     for (let j = 0; j < segment.stars.length - 1; j++) {
       const fromStar = segment.stars[j];
       const toStar = segment.stars[j + 1];
+      const edgeKey = [fromStar.id, toStar.id].sort().join('-');
+      if (edgeDeduplication.has(edgeKey)) continue;
+      edgeDeduplication.add(edgeKey);
+
       const streakAtEdge = j + 2; // Streak day represented by this edge (2, 3, 4...)
-      const style = getConnectorLineStyle(streakAtEdge, segment.isComplete);
+      const style = isCluster
+        ? { color: '#818cf8', opacity: 0.68, lineWidth: 2.2 }
+        : getConnectorLineStyle(streakAtEdge, segment.isComplete);
 
       edges.push({
         id: `edge-${fromStar.id}-${toStar.id}`,

@@ -26,6 +26,17 @@ import { ClusterReleaseHalo } from '@/components/galaxy/ClusterReleaseHalo';
 import { PrMergeStar } from '@/components/galaxy/PrMergeStar';
 import { ShootingStar } from '@/components/galaxy/ShootingStar';
 
+// Suppress Three.js Clock deprecation warning emitted by legacy internal libraries
+if (typeof window !== 'undefined') {
+  const originalWarn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    if (typeof args[0] === 'string' && args[0].includes('THREE.Clock: This module has been deprecated')) {
+      return;
+    }
+    originalWarn(...args);
+  };
+}
+
 /**
  * ==============================================================================
  * Architectural Decision: Rendering Threshold & Performance Budget
