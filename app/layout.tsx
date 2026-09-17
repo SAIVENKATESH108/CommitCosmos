@@ -73,10 +73,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/commitcosmos_logo.png', sizes: '512x512', type: 'image/png' },
       { url: '/commitcosmos_favicon_512.png', sizes: '512x512', type: 'image/png' },
       { url: '/favicon.ico' },
     ],
-    shortcut: '/commitcosmos_favicon_512.png',
+    shortcut: '/commitcosmos_logo.png',
     apple: '/apple-touch-icon.png',
   },
   robots: {

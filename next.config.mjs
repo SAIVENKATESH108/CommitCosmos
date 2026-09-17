@@ -5,10 +5,10 @@
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline';
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' blob: data: https://avatars.githubusercontent.com;
-  font-src 'self' data:;
-  connect-src 'self' https://*.neon.tech https://*.upstash.io;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  img-src 'self' blob: data: https://avatars.githubusercontent.com https://github.com;
+  font-src 'self' data: https://fonts.gstatic.com;
+  connect-src 'self' https://*.neon.tech https://*.upstash.io https://api.github.com;
   object-src 'none';
   base-uri 'self';
   form-action 'self' https://github.com;

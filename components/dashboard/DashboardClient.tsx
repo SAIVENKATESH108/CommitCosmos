@@ -387,7 +387,7 @@ export function DashboardClient({
                         <p className="text-xs text-slate-500 truncate font-mono">{proj.repoUrl}</p>
                       </div>
                       <div className="pt-3 mt-3 border-t border-white/[0.06] flex items-center justify-between">
-                        <span className="text-[11px] text-slate-600">Connected {new Date(proj.createdAt).toLocaleDateString()}</span>
+                        <span suppressHydrationWarning className="text-[11px] text-slate-600">Connected {new Date(proj.createdAt).toLocaleDateString()}</span>
                         <a href={proj.repoUrl} target="_blank" rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors">
                           Open Repo <ExternalLink className="w-3 h-3" />
@@ -659,7 +659,7 @@ export function DashboardClient({
                       style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)' }}>
                       {commit.sha.slice(0, 7)}
                     </span>
-                    <span>{new Date(commit.committedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span suppressHydrationWarning>{new Date(commit.committedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </motion.div>
               ))}

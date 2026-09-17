@@ -290,7 +290,7 @@ export function GalaxyListView({ galaxy, stats, isTeamMode = false }: GalaxyList
                                             ) : <span className="text-slate-600">—</span>}
                                           </td>
                                           <td className="py-2.5 px-4 text-right" style={{ color: '#475569' }}>
-                                            <time dateTime={commit.committedAt}>
+                                            <time dateTime={commit.committedAt} suppressHydrationWarning>
                                               {new Date(commit.committedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                                             </time>
                                           </td>

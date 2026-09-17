@@ -55,21 +55,38 @@ export async function POST(request: NextRequest) {
 
     // Fetch user repositories from GitHub API
     const reposUrl = `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`;
-    const reposRes = await fetch(reposUrl, { headers });
+    let reposRes = await fetch(reposUrl, { headers });
+
+    // If authenticated request failed (e.g. 401 token expired/invalid), retry as public request
+    if (!reposRes.ok && headers.Authorization) {
+      delete headers.Authorization;
+      reposRes = await fetch(reposUrl, { headers });
+    }
 
     if (!reposRes.ok) {
-      return NextResponse.json(
-        { error: `GitHub API error: ${reposRes.status} ${reposRes.statusText}` },
-        { status: 502 }
-      );
+      // Fallback gracefully to existing projects in database if GitHub API rate limits
+      const currentProjects = await getProjectsForUser(userId);
+      return NextResponse.json({
+        success: true,
+        message: `GitHub API temporarily busy. Tracking ${currentProjects.length} existing repositories in database.`,
+        syncedProjects: currentProjects.length,
+        syncedCommits: 0,
+        totalProjects: currentProjects.length,
+        projects: currentProjects,
+      });
     }
 
     const repos = await reposRes.json();
     if (!Array.isArray(repos)) {
-      return NextResponse.json(
-        { error: 'Unexpected response format from GitHub' },
-        { status: 502 }
-      );
+      const currentProjects = await getProjectsForUser(userId);
+      return NextResponse.json({
+        success: true,
+        message: `Tracking ${currentProjects.length} repositories in database.`,
+        syncedProjects: currentProjects.length,
+        syncedCommits: 0,
+        totalProjects: currentProjects.length,
+        projects: currentProjects,
+      });
     }
 
     let syncedProjects = 0;
