@@ -42,7 +42,7 @@ export function AppNavbar({
   profileAvatarUrl,
   currentUser: initialUser,
   currentStreak = 0,
-  totalCommits = 0,
+  totalCommits: _totalCommits = 0,
   projects = [],
   selectedRepoId = 'all',
   onSelectRepo,
@@ -66,7 +66,7 @@ export function AppNavbar({
   const selectedRepoLabel = isLoading
     ? 'Loading...'
     : selectedRepoId === 'all'
-      ? `All repos (${totalCommits})`
+      ? `All repos (${projects.length})`
       : `${selectedProject?.repoName || 'Selected repo'} (${repoCommitCounts[selectedRepoId] ?? 0})`;
 
   return (
@@ -138,7 +138,7 @@ export function AppNavbar({
                       <span className="font-semibold text-slate-200">All repositories</span>
                       <Badge variant="secondary" className="text-[10px] py-0 px-1.5"
                         style={{ background: 'rgba(139,92,246,0.2)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.3)' }}>
-                        {totalCommits}
+                        {projects.length} {projects.length === 1 ? 'repo' : 'repos'}
                       </Badge>
                     </div>
                   </SelectItem>
