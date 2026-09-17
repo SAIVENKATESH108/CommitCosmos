@@ -20,6 +20,7 @@ import {
   Layers,
   Compass,
   Star,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -52,6 +53,33 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('clusters');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<string | null>(null);
+
+  const handleSyncRepos = async () => {
+    setIsSyncing(true);
+    setSyncStatus('Connecting to GitHub API to discover repositories...');
+    try {
+      const res = await fetch('/api/repos/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user.githubUsername }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSyncStatus(`✓ Successfully synced ${data.syncedProjects ?? 0} repositories! Refreshing...`);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        setSyncStatus(`Error: ${data.error || 'Failed to sync repositories'}`);
+      }
+    } catch {
+      setSyncStatus('Network error synchronizing with GitHub.');
+    } finally {
+      setTimeout(() => setIsSyncing(false), 2500);
+    }
+  };
 
   const webhookPayloadUrl = `${productionUrl}/api/webhooks/github`;
   const galaxyProfileUrl = `${productionUrl}/u/${user.githubUsername}`;
@@ -282,6 +310,27 @@ export function DashboardClient({
 
             {/* TAB 1: Star Clusters */}
             <TabsContent value="clusters" className="pt-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 p-3 rounded-2xl"
+                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="text-xs text-slate-400">
+                  <span className="font-bold text-white">{projects.length}</span> connected {projects.length === 1 ? 'cluster' : 'clusters'} in your cosmos
+                </div>
+                <div className="flex items-center gap-3">
+                  {syncStatus && (
+                    <span className="text-[11px] font-mono text-cyan-300">{syncStatus}</span>
+                  )}
+                  <button
+                    onClick={handleSyncRepos}
+                    disabled={isSyncing}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105 disabled:opacity-50 cursor-pointer"
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #0891b2)', boxShadow: '0 2px 10px rgba(124,58,237,0.3)' }}
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                    <span>{isSyncing ? 'Syncing...' : 'Sync Repositories'}</span>
+                  </button>
+                </div>
+              </div>
+
               {projects.length === 0 ? (
                 <div className="rounded-2xl p-10 text-center"
                   style={{ background: 'rgba(139,92,246,0.05)', border: '1px dashed rgba(139,92,246,0.3)' }}>

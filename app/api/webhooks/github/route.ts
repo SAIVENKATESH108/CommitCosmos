@@ -259,8 +259,39 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Handle ping event
+  // Handle ping event (Fired when a user adds a webhook in GitHub repository settings)
   if (githubEvent === 'ping') {
+    try {
+      const pingData = jsonPayload as {
+        repository?: {
+          name: string;
+          full_name: string;
+          html_url?: string;
+          default_branch?: string;
+          owner: { id?: number; login: string };
+        };
+        sender?: { id?: number; login?: string };
+      };
+
+      if (pingData?.repository) {
+        const user = await resolveUser(pingData.repository.owner, pingData.sender);
+        if (user) {
+          const repoUrl = pingData.repository.html_url || `https://github.com/${pingData.repository.full_name}`;
+          const project = await createProject(user.id, repoUrl, pingData.repository.name);
+          const defaultBranch = pingData.repository.default_branch || 'main';
+          await createOrGetBranch(project.id, defaultBranch, true);
+
+          return NextResponse.json({
+            success: true,
+            message: `Pong! Repository ${pingData.repository.full_name} successfully registered in CommitCosmos.`,
+            projectId: project.id,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('[GitHub Webhook] Error registering repository on ping:', err);
+    }
+
     return NextResponse.json({ success: true, message: 'Pong! Webhook connected successfully.' });
   }
 
