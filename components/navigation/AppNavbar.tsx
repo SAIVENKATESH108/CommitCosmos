@@ -5,46 +5,34 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { Flame, FolderGit2, Box, ListFilter, LayoutDashboard } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { SignOutButton } from '@/components/auth/SignOutButton';
 import { SignInButton } from '@/components/auth/SignInButton';
 import type { GalaxyProject } from '@/lib/queries';
 
 export interface AppNavbarProps {
-  /** Optional username of the profile currently being viewed */
   profileUsername?: string;
-  /** Optional avatar of the profile being viewed */
   profileAvatarUrl?: string | null;
-  /** User object passed from server or session */
   currentUser?: {
     id?: string;
     githubUsername?: string | null;
     avatarUrl?: string | null;
     image?: string | null;
   } | null;
-  /** Current streak days */
   currentStreak?: number;
-  /** Total commits count */
   totalCommits?: number;
-  /** Connected projects list for repo filtering */
   projects?: GalaxyProject[];
-  /** Selected repository filter ID ('all' or specific project ID) */
   selectedRepoId?: string;
-  /** Callback when repository filter selection changes */
   onSelectRepo?: (repoId: string) => void;
-  /** Per-project commit count map */
   repoCommitCounts?: Record<string, number>;
-  /** Whether the accessible 2D list view is active */
   isListView?: boolean;
-  /** Callback when toggling between 3D Galaxy and 2D List view */
   onToggleListView?: (isList: boolean) => void;
-  /** Optional custom title or page badge (e.g. "Observatory") */
   pageBadge?: string;
 }
 
@@ -62,10 +50,8 @@ export function AppNavbar({
   onToggleListView,
   pageBadge,
 }: AppNavbarProps) {
-  // TanStack / NextAuth client session for reactive updates
   const { data: session } = useSession();
 
-  // Signed-in user resolution: props > session
   const signedInUser = initialUser || session?.user || null;
   const signedInUsername = signedInUser?.githubUsername;
   const signedInAvatar =
@@ -74,8 +60,6 @@ export function AppNavbar({
     (profileUsername === signedInUsername ? profileAvatarUrl : null);
 
   const streakDaysText = `${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`;
-
-  // Find the selected project name for the select trigger display
   const selectedProject = projects.find((p) => p.id === selectedRepoId);
   const selectedRepoLabel =
     selectedRepoId === 'all'
@@ -85,74 +69,72 @@ export function AppNavbar({
   return (
     <header
       role="banner"
-      className="sticky top-0 z-30 w-full border-b border-slate-800/80 bg-black/90 backdrop-blur-xl transition-all"
+      className="sticky top-0 z-30 w-full transition-all"
+      style={{
+        background: 'rgba(2,0,10,0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+      }}
     >
+      {/* Subtle gradient top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-[1px]"
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.6), rgba(6,182,212,0.4), transparent)' }} />
+
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
-        {/* ================= LEFT: Brand Logo & Wordmark ================= */}
+        {/* ── LEFT: Brand ── */}
         <div className="flex items-center space-x-3">
-          <Link
-            href="/"
-            aria-label="CommitCosmos Homepage"
-            className="group flex items-center space-x-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded-lg p-1"
-          >
-            <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-indigo-500/40 bg-black shadow-lg shadow-indigo-500/20 shrink-0">
-              <Image
-                src="/commitcosmos_logo.png"
-                alt="CommitCosmos Logo"
-                width={32}
-                height={32}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                priority
-              />
+          <Link href="/" aria-label="CommitCosmos Homepage"
+            className="group flex items-center space-x-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 rounded-xl p-1">
+            <div className="relative w-8 h-8 rounded-xl overflow-hidden flex-shrink-0 transition-transform group-hover:scale-110"
+              style={{ background: 'linear-gradient(135deg, #4c1d95, #0e7490)', boxShadow: '0 0 16px rgba(139,92,246,0.35)' }}>
+              <Image src="/commitcosmos_logo.png" alt="CommitCosmos Logo" width={32} height={32}
+                className="w-full h-full object-cover" priority />
             </div>
             <div className="flex items-center space-x-2">
-              <span className="font-extrabold tracking-tight text-white text-base sm:text-lg group-hover:text-indigo-300 transition-colors">
-                CommitCosmos
+              <span className="font-extrabold tracking-tight text-white text-base sm:text-lg">
+                Commit<span className="text-gradient-cosmic">Cosmos</span>
               </span>
               {pageBadge && (
-                <Badge
-                  variant="outline"
-                  className="hidden md:inline-flex text-[10px] py-0 px-2 bg-indigo-950/70 text-indigo-300 border-indigo-800/60 font-mono uppercase"
-                >
+                <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                  style={{ background: 'rgba(109,40,217,0.2)', border: '1px solid rgba(139,92,246,0.35)', color: '#a78bfa' }}>
                   {pageBadge}
-                </Badge>
+                </span>
               )}
             </div>
           </Link>
 
-          {/* Profile Owner Breadcrumb Pill (if viewing a profile) */}
           {profileUsername && (
-            <div className="hidden lg:flex items-center space-x-1.5 pl-2 border-l border-slate-800">
-              <span className="text-xs text-slate-400">galaxy:</span>
+            <div className="hidden lg:flex items-center space-x-1.5 pl-2 border-l border-white/10">
+              <span className="text-xs text-slate-500">galaxy:</span>
               <span className="text-xs font-semibold text-slate-200">@{profileUsername}</span>
             </div>
           )}
         </div>
 
-        {/* ================= CENTER: Repo Filter & View Toggle ================= */}
+        {/* ── CENTER: Repo Filter & View Toggle ── */}
         <div className="flex items-center space-x-2 sm:space-x-3 order-3 sm:order-2 w-full sm:w-auto justify-between sm:justify-center">
-          {/* Repo Filter Dropdown */}
           {onSelectRepo && (
             <div className="flex items-center min-w-[170px] sm:min-w-[210px] max-w-[260px]">
-              <label htmlFor="repo-filter-select" className="sr-only">
-                Filter galaxy by repository
-              </label>
+              <label htmlFor="repo-filter-select" className="sr-only">Filter galaxy by repository</label>
               <Select value={selectedRepoId} onValueChange={onSelectRepo}>
                 <SelectTrigger
                   id="repo-filter-select"
                   aria-label="Filter galaxy by repository"
-                  className="h-8 text-xs border-slate-800 bg-slate-950/90 text-slate-200 hover:border-slate-700 hover:bg-slate-900 transition-colors"
-                >
+                  className="h-8 text-xs border-white/10 text-slate-200 hover:border-violet-500/50 transition-colors rounded-xl"
+                  style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)' }}>
                   <div className="flex items-center space-x-1.5 truncate">
-                    <FolderGit2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" aria-hidden="true" />
+                    <FolderGit2 className="w-3.5 h-3.5 text-violet-400 shrink-0" aria-hidden="true" />
                     <span className="truncate">{selectedRepoLabel}</span>
                   </div>
                 </SelectTrigger>
-                <SelectContent align="center" className="border-slate-800 bg-slate-950/95 text-slate-100 shadow-2xl backdrop-blur-xl">
+                <SelectContent align="center" className="border-white/10 text-slate-100 shadow-2xl backdrop-blur-xl rounded-xl"
+                  style={{ background: 'rgba(10,0,30,0.95)' }}>
                   <SelectItem value="all" className="text-xs py-1.5">
                     <div className="flex items-center justify-between w-full gap-3">
                       <span className="font-semibold text-slate-200">All repositories</span>
-                      <Badge variant="secondary" className="text-[10px] py-0 px-1.5 bg-slate-800 text-slate-300">
+                      <Badge variant="secondary" className="text-[10px] py-0 px-1.5"
+                        style={{ background: 'rgba(139,92,246,0.2)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.3)' }}>
                         {totalCommits}
                       </Badge>
                     </div>
@@ -163,7 +145,8 @@ export function AppNavbar({
                       <SelectItem key={proj.id} value={proj.id} className="text-xs py-1.5">
                         <div className="flex items-center justify-between w-full gap-3">
                           <span className="truncate max-w-[150px]">{proj.repoName}</span>
-                          <Badge variant="secondary" className="text-[10px] py-0 px-1.5 bg-slate-800 text-slate-300 font-mono">
+                          <Badge variant="secondary" className="text-[10px] py-0 px-1.5"
+                            style={{ background: 'rgba(255,255,255,0.08)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }}>
                             {commitCount}
                           </Badge>
                         </div>
@@ -175,98 +158,70 @@ export function AppNavbar({
             </div>
           )}
 
-          {/* Accessible View Switcher (Segmented Control) */}
           {onToggleListView && (
-            <div
-              role="radiogroup"
-              aria-label="Galaxy visualization mode"
-              className="inline-flex p-0.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-medium"
-            >
-              <button
-                type="button"
-                role="radio"
-                aria-checked={!isListView}
-                aria-label="Switch to 3D interactive galaxy view"
+            <div role="radiogroup" aria-label="Galaxy visualization mode"
+              className="inline-flex p-0.5 rounded-xl text-xs font-medium"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <button type="button" role="radio" aria-checked={!isListView} aria-label="Switch to 3D interactive galaxy view"
                 onClick={() => onToggleListView(false)}
-                className={`flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
-                  !isListView
-                    ? 'bg-indigo-600 text-white shadow-sm font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
+                  !isListView ? 'text-white font-semibold' : 'text-slate-400 hover:text-slate-200'
                 }`}
-              >
+                style={!isListView ? { background: 'linear-gradient(135deg, #7c3aed, #0891b2)', boxShadow: '0 2px 12px rgba(124,58,237,0.4)' } : {}}>
                 <Box className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                 <span className="hidden md:inline">3D Galaxy</span>
               </button>
-
-              <button
-                type="button"
-                role="radio"
-                aria-checked={isListView}
-                aria-label="Switch to accessible 2D list view"
+              <button type="button" role="radio" aria-checked={isListView} aria-label="Switch to accessible 2D list view"
                 onClick={() => onToggleListView(true)}
-                className={`flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
-                  isListView
-                    ? 'bg-indigo-600 text-white shadow-sm font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
+                  isListView ? 'text-white font-semibold' : 'text-slate-400 hover:text-slate-200'
                 }`}
-              >
+                style={isListView ? { background: 'linear-gradient(135deg, #7c3aed, #0891b2)', boxShadow: '0 2px 12px rgba(124,58,237,0.4)' } : {}}>
                 <ListFilter className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                <span className="hidden md:inline">Accessible List</span>
+                <span className="hidden md:inline">List View</span>
               </button>
             </div>
           )}
         </div>
 
-        {/* ================= RIGHT: Streak, Avatar, and Sign-Out ================= */}
+        {/* ── RIGHT: Streak + Avatar + Actions ── */}
         <div className="flex items-center space-x-2.5 sm:space-x-3 order-2 sm:order-3 ml-auto sm:ml-0">
-          {/* Flame Streak Badge */}
-          <div
-            title={`Current Daily Commit Streak: ${streakDaysText}`}
-            className="flex items-center"
-          >
-            <Badge
-              variant="outline"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-950/60 border-orange-800/60 text-orange-300 font-semibold text-xs shadow-sm shadow-orange-500/10 hover:bg-orange-950/80 transition-colors"
-            >
-              <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400 animate-pulse" aria-hidden="true" />
-              <span>{streakDaysText}</span>
-            </Badge>
+          {/* Streak Badge */}
+          <div title={`Current Daily Commit Streak: ${streakDaysText}`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs"
+            style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24', boxShadow: '0 0 12px rgba(245,158,11,0.2)' }}>
+            <Flame className="w-3.5 h-3.5 fill-amber-400 text-amber-400 animate-pulse" aria-hidden="true" />
+            <span>{streakDaysText}</span>
           </div>
 
-          {/* Signed-in User Avatar & Profile Link */}
           {signedInUser ? (
             <div className="flex items-center space-x-2">
-              <Link
-                href={signedInUsername ? `/u/${signedInUsername}` : '/dashboard'}
+              {/* Avatar */}
+              <Link href={signedInUsername ? `/u/${signedInUsername}` : '/dashboard'}
                 aria-label={`View ${signedInUsername || 'your'}'s galaxy`}
-                className="group relative flex items-center rounded-full p-0.5 ring-1 ring-slate-700 hover:ring-indigo-500 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-              >
+                className="group relative flex items-center rounded-full p-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                style={{ border: '1px solid rgba(139,92,246,0.3)' }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(139,92,246,0.5)'}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = ''}>
                 {signedInAvatar ? (
-                  <Image
-                    src={signedInAvatar}
-                    alt={signedInUsername ? `${signedInUsername}'s avatar` : 'User avatar'}
-                    width={28}
-                    height={28}
-                    className="w-7 h-7 rounded-full object-cover"
-                    unoptimized
-                  />
+                  <Image src={signedInAvatar} alt={signedInUsername ? `${signedInUsername}'s avatar` : 'User avatar'}
+                    width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-indigo-900/80 flex items-center justify-center text-indigo-200 font-bold text-xs">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs text-white"
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #0891b2)' }}>
                     {(signedInUsername || 'CC').slice(0, 2).toUpperCase()}
                   </div>
                 )}
               </Link>
 
-              {/* Quick Link to Observatory Dashboard */}
-              <Link
-                href="/dashboard"
-                className="hidden lg:inline-flex items-center gap-1 h-8 px-2 rounded-lg text-xs text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors"
-              >
+              {/* Observatory link */}
+              <Link href="/dashboard"
+                className="hidden lg:inline-flex items-center gap-1 h-8 px-3 rounded-xl text-xs text-slate-400 hover:text-slate-100 transition-all"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <LayoutDashboard className="w-3.5 h-3.5" />
                 <span>Observatory</span>
               </Link>
 
-              {/* Sign-Out Control */}
               <SignOutButton />
             </div>
           ) : (
