@@ -142,8 +142,9 @@ export default async function HomePage() {
               </>
             ) : (
               <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-                <SignInButton className="w-full justify-center py-3.5 text-sm font-bold rounded-2xl"
-                  style={{ background: 'linear-gradient(135deg, #7c3aed, #0891b2)', boxShadow: '0 8px 40px rgba(124,58,237,0.45)', border: 'none', color: 'white' }} />
+                <div className="w-full rounded-2xl overflow-hidden" style={{ boxShadow: '0 8px 40px rgba(124,58,237,0.45)' }}>
+                  <SignInButton className="w-full justify-center py-3.5 text-sm font-bold bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 text-white rounded-2xl" />
+                </div>
                 <p className="text-[11px] text-slate-500">
                   🔒 Read-only OAuth · Zero write access to your repos
                 </p>
