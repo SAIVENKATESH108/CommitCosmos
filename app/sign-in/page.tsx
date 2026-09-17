@@ -1,4 +1,5 @@
 import { SignInButton } from '@/components/auth/SignInButton';
+import { StarField } from '@/components/landing/StarField';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -13,24 +14,13 @@ export default async function SignInPage() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4" style={{ background: '#02000a' }}>
-      {/* Animated nebula glows */}
+      {/* Ambient nebula glows + client-side star field */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full"
           style={{ background: 'radial-gradient(circle, rgba(109,40,217,0.2) 0%, transparent 65%)', filter: 'blur(60px)' }} />
         <div className="absolute bottom-10 right-10 w-[400px] h-[400px] rounded-full animate-glow-pulse"
           style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 65%)', filter: 'blur(60px)' }} />
-        {/* Star field */}
-        {Array.from({ length: 80 }).map((_, i) => (
-          <div key={i} className="absolute rounded-full bg-white animate-twinkle"
-            style={{
-              width: Math.random() * 2 + 0.5 + 'px',
-              height: Math.random() * 2 + 0.5 + 'px',
-              top: Math.random() * 100 + '%',
-              left: Math.random() * 100 + '%',
-              animationDelay: Math.random() * 5 + 's',
-              opacity: Math.random() * 0.5 + 0.1,
-            }} />
-        ))}
+        <StarField count={80} />
       </div>
 
       {/* Back link */}
