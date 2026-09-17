@@ -33,7 +33,7 @@ export function CameraControls({
   return (
     <nav
       aria-label="3D Galaxy camera controls"
-      className="absolute bottom-28 sm:bottom-6 right-4 sm:right-6 z-30 flex items-center gap-2 pointer-events-auto select-none flex-wrap justify-end"
+      className="absolute bottom-20 sm:bottom-20 right-4 sm:right-6 z-30 flex items-center gap-2 pointer-events-auto select-none flex-wrap justify-end"
     >
       {/* 1. Cinematic Tour Button */}
       <button

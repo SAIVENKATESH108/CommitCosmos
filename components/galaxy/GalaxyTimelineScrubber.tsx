@@ -111,7 +111,7 @@ export function GalaxyTimelineScrubber({ commits }: GalaxyTimelineScrubberProps)
     <div
       role="region"
       aria-label="Galaxy Evolution Time-Lapse Scrubber"
-      className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex flex-col items-center gap-2 max-w-[95vw] sm:max-w-xl w-full px-2"
+      className="absolute bottom-4 sm:bottom-5 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex flex-col items-center gap-2 max-w-[92vw] sm:max-w-md w-full px-2"
     >
       <div className="w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-black/85 hover:bg-black/95 backdrop-blur-2xl border border-white/15 shadow-2xl shadow-black/90 text-slate-200 transition-all duration-200">
         {/* Play/Pause Button */}
