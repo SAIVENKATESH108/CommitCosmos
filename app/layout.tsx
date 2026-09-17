@@ -100,11 +100,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link rel="icon" type="image/png" href="/commitcosmos_logo.png" />
-        <link rel="shortcut icon" href="/commitcosmos_logo.png" />
-        <link rel="apple-touch-icon" href="/commitcosmos_logo.png" />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-black text-slate-100 antialiased selection:bg-cyan-500/30 selection:text-cyan-200`}
       >

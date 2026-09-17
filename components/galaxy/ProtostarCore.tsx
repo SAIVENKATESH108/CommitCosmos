@@ -19,7 +19,6 @@ export function ProtostarCore() {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.MeshStandardMaterial>(null);
   const ringRef = useRef<THREE.Mesh>(null);
-  const elapsedTimeRef = useRef(0);
   const [hovered, setHovered] = useState(false);
 
   const { setHoveredStarId, setPinnedStarId } = useGalaxyStore();
@@ -54,7 +53,7 @@ export function ProtostarCore() {
     };
   }, [setHoveredStarId, setPinnedStarId]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     const prefersReducedMotion =
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -72,8 +71,7 @@ export function ProtostarCore() {
         return;
       }
 
-      elapsedTimeRef.current += delta;
-      const time = elapsedTimeRef.current;
+      const time = state.clock.getElapsedTime();
       const pulse = Math.sin(time * 1.6) * 0.08;
       const baseScale = hovered ? 1.25 : 1.0;
       meshRef.current.scale.setScalar(baseScale + pulse * 0.4);
